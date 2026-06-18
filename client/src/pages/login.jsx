@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,13 +10,32 @@ const Login = () => {
     role: 'user'
   });
 
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+
+    // fake login - normally this would call the backend to check email/password
+    // for now we just trust whatever role was selected and log them in
+    login({
+      name: formData.email.split('@')[0],
+      email: formData.email,
+      role: formData.role
+    });
+
+    // redirect to the correct dashboard based on role
+    if (formData.role === 'user') {
+      navigate('/user/services');
+    } else if (formData.role === 'caregiver') {
+      navigate('/caregiver/requests');
+    } else if (formData.role === 'admin') {
+      navigate('/admin/dashboard');
+    }
   };
 
   return (
@@ -85,7 +105,7 @@ const Login = () => {
 
           <p className="text-center text-gray-400 text-sm mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium" style={{color: '#F4617F'}}>
+            <Link to="/login" className="font-medium" style={{color: '#F4617F'}}>
               Register here
             </Link>
           </p>
