@@ -9,6 +9,10 @@ import Caregivers from './pages/user/Caregivers';
 import BookService from './pages/user/BookService';
 import TrackService from './pages/user/TrackService';
 import ServiceHistory from './pages/user/ServiceHistory';
+import ManageAvailability from './pages/caregiver/ManageAvailability';
+import ServiceRequests from './pages/caregiver/ServiceRequests';
+import ActiveJobs from './pages/caregiver/ActiveJobs';
+import EarningsHistory from './pages/caregiver/EarningsHistory';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -36,6 +40,19 @@ function App() {
         } />
         <Route path="/user/history" element={
           <ProtectedRoute allowedRole="user"><ServiceHistory /></ProtectedRoute>
+        } />
+
+        <Route path="/caregiver/availability" element={
+          <ProtectedRoute allowedRole="caregiver"><ManageAvailability /></ProtectedRoute>
+        } />
+        <Route path="/caregiver/requests" element={
+          <ProtectedRoute allowedRole="caregiver"><ServiceRequests /></ProtectedRoute>
+        } /> 
+        <Route path="/caregiver/jobs" element={
+          <ProtectedRoute allowedRole="caregiver"><ActiveJobs /></ProtectedRoute>
+        } />
+        <Route path="/caregiver/history" element={
+          <ProtectedRoute allowedRole="caregiver"><EarningsHistory /></ProtectedRoute>
         } />
       </Routes>
     </Router>

@@ -45,6 +45,18 @@ const Navbar = () => {
             </>
           )}
 
+          {user && user.role === 'caregiver' && (
+            <>
+              <Link to="/caregiver/requests" className="text-gray-500 hover:text-gray-800 text-sm">Requests</Link>
+              <Link to="/caregiver/jobs" className="text-gray-500 hover:text-gray-800 text-sm">Active Jobs</Link>
+              <Link to="/caregiver/availability" className="text-gray-500 hover:text-gray-800 text-sm">Availability</Link>
+              <Link to="/caregiver/history" className="text-gray-500 hover:text-gray-800 text-sm">Work History</Link>
+              <button onClick={handleLogout} className="text-sm font-medium" style={{color: '#F4617F'}}>
+                Logout
+              </button>
+            </>
+          )}
+
         </div>
 
         {/* mobile hamburger */}
@@ -78,6 +90,18 @@ const Navbar = () => {
               <Link to="/user/patient" className="text-gray-500 py-2 text-sm">Patient Profile</Link>
               <Link to="/user/track" className="text-gray-500 py-2 text-sm">Track Service</Link>
               <Link to="/user/history" className="text-gray-500 py-2 text-sm">History</Link>
+              <button onClick={handleLogout} className="text-sm font-medium text-left" style={{color: '#F4617F'}}>
+                Logout
+              </button>
+            </>
+          )}
+
+          {user && user.role === 'caregiver' && (
+            <>
+              <Link to="/caregiver/requests" className="text-gray-500 py-2 text-sm">Requests</Link>
+              <Link to="/caregiver/jobs" className="text-gray-500 py-2 text-sm">Active Jobs</Link>
+              <Link to="/caregiver/availability" className="text-gray-500 py-2 text-sm">Availability</Link>
+              <Link to="/caregiver/history" className="text-gray-500 py-2 text-sm">Work History</Link>
               <button onClick={handleLogout} className="text-sm font-medium text-left" style={{color: '#F4617F'}}>
                 Logout
               </button>
