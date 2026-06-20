@@ -8,6 +8,7 @@ import Services from './pages/user/Services';
 import Caregivers from './pages/user/Caregivers';
 import BookService from './pages/user/BookService';
 import TrackService from './pages/user/TrackService';
+import ServiceHistory from './pages/user/ServiceHistory';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -32,6 +33,9 @@ function App() {
         } />
         <Route path="/user/track" element={
           <ProtectedRoute allowedRole="user"><TrackService /></ProtectedRoute>
+        } />
+        <Route path="/user/history" element={
+          <ProtectedRoute allowedRole="user"><ServiceHistory /></ProtectedRoute>
         } />
       </Routes>
     </Router>

@@ -23,7 +23,6 @@ const Navbar = () => {
         {/* desktop links */}
         <div className="hidden md:flex gap-6 items-center">
 
-          {/* not logged in - show login/register */}
           {!user && (
             <>
               <Link to="/login" className="text-gray-500 hover:text-gray-800 text-sm">Login</Link>
@@ -33,13 +32,13 @@ const Navbar = () => {
             </>
           )}
 
-          {/* logged in as user - show user pages */}
           {user && user.role === 'user' && (
             <>
               <Link to="/user/services" className="text-gray-500 hover:text-gray-800 text-sm">Services</Link>
               <Link to="/user/caregivers" className="text-gray-500 hover:text-gray-800 text-sm">Caregivers</Link>
               <Link to="/user/patient" className="text-gray-500 hover:text-gray-800 text-sm">Patient Profile</Link>
               <Link to="/user/track" className="text-gray-500 hover:text-gray-800 text-sm">Track Service</Link>
+              <Link to="/user/history" className="text-gray-500 hover:text-gray-800 text-sm">History</Link>
               <button onClick={handleLogout} className="text-sm font-medium" style={{color: '#F4617F'}}>
                 Logout
               </button>
@@ -78,6 +77,7 @@ const Navbar = () => {
               <Link to="/user/caregivers" className="text-gray-500 py-2 text-sm">Caregivers</Link>
               <Link to="/user/patient" className="text-gray-500 py-2 text-sm">Patient Profile</Link>
               <Link to="/user/track" className="text-gray-500 py-2 text-sm">Track Service</Link>
+              <Link to="/user/history" className="text-gray-500 py-2 text-sm">History</Link>
               <button onClick={handleLogout} className="text-sm font-medium text-left" style={{color: '#F4617F'}}>
                 Logout
               </button>
