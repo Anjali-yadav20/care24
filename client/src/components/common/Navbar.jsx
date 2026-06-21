@@ -56,6 +56,18 @@ const Navbar = () => {
               </button>
             </>
           )}
+          {user && user.role === 'admin' && (
+            <>
+              <Link to="/admin/dashboard" className="text-gray-500 hover:text-gray-800 text-sm">Dashboard</Link>
+              <Link to="/admin/verify" className="text-gray-500 hover:text-gray-800 text-sm">Verify Caregivers</Link>
+              <Link to="/admin/users" className="text-gray-500 hover:text-gray-800 text-sm">Manage Users</Link>
+              <Link to="/admin/quality" className="text-gray-500 hover:text-gray-800 text-sm">Quality</Link>
+              <Link to="/admin/disputes" className="text-gray-500 hover:text-gray-800 text-sm">Disputes</Link>
+              <button onClick={handleLogout} className="text-sm font-medium" style={{color: '#F4617F'}}>
+                Logout
+              </button>
+            </>
+          )}
 
         </div>
 
@@ -107,6 +119,18 @@ const Navbar = () => {
               </button>
             </>
           )}
+        {user && user.role === 'admin' && (
+          <>
+            <Link to="/admin/dashboard" className="text-gray-500 hover:text-gray-800 text-sm">Dashboard</Link>
+            <Link to="/admin/verify" className="text-gray-500 hover:text-gray-800 text-sm">Verify Caregivers</Link>
+            <Link to="/admin/users" className="text-gray-500 hover:text-gray-800 text-sm">Manage Users</Link>
+            <Link to="/admin/quality" className="text-gray-500 hover:text-gray-800 text-sm">Quality</Link>
+            <Link to="/admin/disputes" className="text-gray-500 hover:text-gray-800 text-sm">Disputes</Link>
+            <button onClick={handleLogout} className="text-sm font-medium" style={{color: '#F4617F'}}>
+              Logout
+            </button>
+          </>
+        )}
 
         </div>
       )}

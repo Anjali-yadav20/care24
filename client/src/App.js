@@ -13,6 +13,11 @@ import ManageAvailability from './pages/caregiver/ManageAvailability';
 import ServiceRequests from './pages/caregiver/ServiceRequests';
 import ActiveJobs from './pages/caregiver/ActiveJobs';
 import EarningsHistory from './pages/caregiver/EarningsHistory';
+import VerifyCaregivers from './pages/admin/VerifyCaregivers';
+import ManageUsers from './pages/admin/ManageUsers';
+import MonitorQuality from './pages/admin/MonitorQuality';
+import Disputes from './pages/admin/Disputes';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -20,6 +25,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/test-admin" element={<AdminDashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
@@ -47,12 +53,28 @@ function App() {
         } />
         <Route path="/caregiver/requests" element={
           <ProtectedRoute allowedRole="caregiver"><ServiceRequests /></ProtectedRoute>
-        } /> 
+        } />
         <Route path="/caregiver/jobs" element={
           <ProtectedRoute allowedRole="caregiver"><ActiveJobs /></ProtectedRoute>
         } />
         <Route path="/caregiver/history" element={
           <ProtectedRoute allowedRole="caregiver"><EarningsHistory /></ProtectedRoute>
+        } />
+
+        <Route path="/admin/dashboard" element={
+          <ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>
+        } />
+        <Route path="/admin/verify" element={
+          <ProtectedRoute allowedRole="admin"><VerifyCaregivers /></ProtectedRoute>
+        } />
+        <Route path="/admin/users" element={
+          <ProtectedRoute allowedRole="admin"><ManageUsers /></ProtectedRoute>
+        } />
+        <Route path="/admin/quality" element={
+          <ProtectedRoute allowedRole="admin"><MonitorQuality /></ProtectedRoute>
+        } />
+        <Route path="/admin/disputes" element={
+          <ProtectedRoute allowedRole="admin"><Disputes /></ProtectedRoute>
         } />
       </Routes>
     </Router>

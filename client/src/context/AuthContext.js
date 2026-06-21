@@ -1,22 +1,24 @@
 import React, { createContext, useState, useContext } from 'react';
 
-// create the context - think of it as a "box" that holds user info
 const AuthContext = createContext();
 
-// this Provider wraps our whole app so every page can access the user info
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  // user will look like: { name: 'Anjali', role: 'user' } when logged in
-  // or null when not logged in
+  const [user, setUser] = useState(() => {
+    // when app loads, check if user was already logged in
+    const savedUser = localStorage.getItem('care24_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  // called when user submits login form
   const login = (userData) => {
     setUser(userData);
+    // save to localStorage so user stays logged in on refresh
+    localStorage.setItem('care24_user', JSON.stringify(userData));
   };
 
-  // called when user clicks logout
   const logout = () => {
     setUser(null);
+    // clear from localStorage on logout
+    localStorage.removeItem('care24_user');
   };
 
   return (
@@ -26,5 +28,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// custom hook so we can easily use this context in any page
 export const useAuth = () => useContext(AuthContext);
