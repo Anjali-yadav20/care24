@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Caregiver = require('../models/Caregiver');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -6,14 +7,17 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, role } = req.body;
 
+    // check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // create the user
     const user = await User.create({
       name,
       email,
@@ -21,6 +25,18 @@ const registerUser = async (req, res) => {
       phone,
       role
     });
+
+    // if registering as caregiver, create caregiver profile too
+    if (role === 'caregiver') {
+      await Caregiver.create({
+        user: user._id,
+        qualification: req.body.qualifications || '',
+        experience: req.body.experience || '0 years',
+        serviceAreas: [],
+        availableDays: [],
+        verified: false
+      });
+    }
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -41,16 +57,19 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // create JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
