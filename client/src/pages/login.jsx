@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import { useAuth } from '../context/AuthContext';
+import { loginUser } from '../api/index';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    role: 'user'
+    password: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -17,21 +19,39 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
 
-    login({
-      name: formData.email.split('@')[0],
-      email: formData.email,
-      role: formData.role
-    });
+    try {
+      // call real backend API
+      const res = await loginUser(formData);
 
-    if (formData.role === 'user') {
-      navigate('/user/services');
-    } else if (formData.role === 'caregiver') {
-      navigate('/caregiver/requests');
-    } else if (formData.role === 'admin') {
-      navigate('/admin/dashboard');
+      // save JWT token in localStorage
+      localStorage.setItem('care24_token', res.data.token);
+
+      // save user info in AuthContext
+      login({
+        id: res.data.user.id,
+        name: res.data.user.name,
+        email: res.data.user.email,
+        role: res.data.user.role
+      });
+
+      // redirect based on role
+      if (res.data.user.role === 'user') {
+        navigate('/user/services');
+      } else if (res.data.user.role === 'caregiver') {
+        navigate('/caregiver/requests');
+      } else if (res.data.user.role === 'admin') {
+        navigate('/admin/dashboard');
+      }
+
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,22 +65,11 @@ const Login = () => {
           <h2 className="text-2xl font-bold text-gray-800 text-center mb-1">Welcome Back</h2>
           <p className="text-gray-400 text-center text-sm mb-6">Login to your Care24 account</p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+          )}
 
-            <div>
-              <label className="text-sm text-gray-600 mb-1 block">Login as</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-4 py-2 text-gray-700 focus:outline-none"
-                style={{borderColor: '#FDEEF1'}}
-              >
-                <option value="user">Family / Elderly User</option>
-                <option value="caregiver">Caregiver</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Email</label>
@@ -92,10 +101,11 @@ const Login = () => {
 
             <button
               type="submit"
+              disabled={loading}
               className="text-white font-semibold py-3 rounded-lg mt-2"
-              style={{backgroundColor: '#F4617F'}}
+              style={{backgroundColor: '#F4617F', opacity: loading ? 0.7 : 1}}
             >
-              Login
+              {loading ? 'Logging in...' : 'Login'}
             </button>
 
           </form>

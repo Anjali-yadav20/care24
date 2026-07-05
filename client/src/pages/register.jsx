@@ -1,24 +1,39 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
+import { registerUser } from '../api/index';
 
 const Register = () => {
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
-    role: 'user'
+    role: 'user',
+    qualifications: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setError('');
+    setLoading(true);
+
+    try {
+      await registerUser(formData);
+      navigate('/login');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,6 +45,10 @@ const Register = () => {
 
           <h2 className="text-2xl font-bold text-gray-800 text-center mb-1">Create Account</h2>
           <p className="text-gray-400 text-center text-sm mb-6">Register to get started with Care24</p>
+
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
@@ -110,6 +129,7 @@ const Register = () => {
                 <input
                   type="text"
                   name="qualifications"
+                  value={formData.qualifications}
                   onChange={handleChange}
                   placeholder="e.g. Registered Nurse, Physiotherapist"
                   required
@@ -121,10 +141,11 @@ const Register = () => {
 
             <button
               type="submit"
+              disabled={loading}
               className="text-white font-semibold py-3 rounded-lg mt-2"
-              style={{backgroundColor: '#F4617F'}}
+              style={{backgroundColor: '#F4617F', opacity: loading ? 0.7 : 1}}
             >
-              Register
+              {loading ? 'Registering...' : 'Register'}
             </button>
 
           </form>
