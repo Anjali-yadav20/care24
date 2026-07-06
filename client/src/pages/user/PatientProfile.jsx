@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/common/Navbar';
+import { savePatientProfile, getPatientProfile } from '../../api/index';
 
 const PatientProfile = () => {
-
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -10,14 +10,43 @@ const PatientProfile = () => {
     emergencyContact: '',
     address: ''
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // load existing patient profile when page opens
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getPatientProfile();
+        if (res.data.patient) {
+          setFormData(res.data.patient);
+        }
+      } catch (err) {
+        // no profile yet - that's fine
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      await savePatientProfile(formData);
+      setSuccess('Patient profile saved successfully!');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,9 +58,16 @@ const PatientProfile = () => {
         <p className="text-gray-400 text-sm mb-8">Fill in the elderly patient's details</p>
 
         <div className="bg-white rounded-xl shadow-sm border p-8" style={{borderColor: '#FDEEF1'}}>
+
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+          )}
+          {success && (
+            <p className="text-green-500 text-sm text-center mb-4">{success}</p>
+          )}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-            {/* patient name */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Patient Name</label>
               <input
@@ -46,7 +82,6 @@ const PatientProfile = () => {
               />
             </div>
 
-            {/* age */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Age</label>
               <input
@@ -61,7 +96,6 @@ const PatientProfile = () => {
               />
             </div>
 
-            {/* medical needs */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Medical Needs</label>
               <textarea
@@ -76,9 +110,8 @@ const PatientProfile = () => {
               />
             </div>
 
-            {/* emergency contact */}
             <div>
-              <label className="text-sm text-gray-600 mb-1 block">Emergency Contact Number</label>
+              <label className="text-sm text-gray-600 mb-1 block">Emergency Contact</label>
               <input
                 type="tel"
                 name="emergencyContact"
@@ -91,7 +124,6 @@ const PatientProfile = () => {
               />
             </div>
 
-            {/* address */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Address</label>
               <textarea
@@ -108,10 +140,11 @@ const PatientProfile = () => {
 
             <button
               type="submit"
+              disabled={loading}
               className="text-white font-semibold py-3 rounded-lg mt-2"
-              style={{backgroundColor: '#F4617F'}}
+              style={{backgroundColor: '#F4617F', opacity: loading ? 0.7 : 1}}
             >
-              Save Patient Profile
+              {loading ? 'Saving...' : 'Save Patient Profile'}
             </button>
 
           </form>

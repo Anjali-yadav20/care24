@@ -1,22 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/common/Navbar';
+import { createBooking, getServices } from '../../api/index';
 
 const BookService = () => {
+  const [services, setServices] = useState([]);
   const [formData, setFormData] = useState({
-    service: '',
+    serviceId: '',
     bookingType: 'hourly',
     date: '',
     time: '',
     notes: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // get caregiverId passed from Caregivers page
+  const caregiverId = location.state?.caregiverId;
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await getServices();
+        setServices(res.data.services);
+      } catch (err) {
+        setError('Failed to load services.');
+      }
+    };
+    fetchServices();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setError('');
+    setLoading(true);
+
+    try {
+      await createBooking({
+        caregiverId,
+        serviceId: formData.serviceId,
+        bookingType: formData.bookingType,
+        date: formData.date,
+        time: formData.time,
+        notes: formData.notes
+      });
+      navigate('/user/track');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Booking failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,29 +67,32 @@ const BookService = () => {
         <h2 className="text-2xl font-bold text-gray-800 mb-1">Book a Service</h2>
         <p className="text-gray-400 text-sm mb-8">Fill in the details to book a caregiver</p>
 
+        {error && (
+          <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+        )}
+
         <div className="bg-white rounded-xl border p-8" style={{borderColor: '#FDEEF1'}}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-            {/* service selection */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Select Service</label>
               <select
-                name="service"
-                value={formData.service}
+                name="serviceId"
+                value={formData.serviceId}
                 onChange={handleChange}
                 required
                 className="w-full border rounded-lg px-4 py-2 text-gray-700 focus:outline-none"
                 style={{borderColor: '#FDEEF1'}}
               >
                 <option value="">Choose a service</option>
-                <option value="nursing">Nursing Care</option>
-                <option value="attendant">Elderly Attendant</option>
-                <option value="physiotherapy">Physiotherapy</option>
-                <option value="post-hospital">Post-Hospital Care</option>
+                {services.map((service) => (
+                  <option key={service._id} value={service._id}>
+                    {service.name} — ₹{service.price}/hour
+                  </option>
+                ))}
               </select>
             </div>
 
-            {/* booking type */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Booking Type</label>
               <div className="flex gap-3">
@@ -70,7 +113,6 @@ const BookService = () => {
               </div>
             </div>
 
-            {/* date */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Date</label>
               <input
@@ -84,7 +126,6 @@ const BookService = () => {
               />
             </div>
 
-            {/* time */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Time</label>
               <input
@@ -98,14 +139,13 @@ const BookService = () => {
               />
             </div>
 
-            {/* additional notes */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">Additional Notes</label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleChange}
-                placeholder="Any specific requirements or instructions for the caregiver"
+                placeholder="Any specific requirements for the caregiver"
                 rows={3}
                 className="w-full border rounded-lg px-4 py-2 text-gray-700 focus:outline-none resize-none"
                 style={{borderColor: '#FDEEF1'}}
@@ -114,10 +154,11 @@ const BookService = () => {
 
             <button
               type="submit"
+              disabled={loading}
               className="text-white font-semibold py-3 rounded-lg mt-2"
-              style={{backgroundColor: '#F4617F'}}
+              style={{backgroundColor: '#F4617F', opacity: loading ? 0.7 : 1}}
             >
-              Send Service Request
+              {loading ? 'Booking...' : 'Send Service Request'}
             </button>
 
           </form>

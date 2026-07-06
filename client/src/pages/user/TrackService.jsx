@@ -1,33 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/common/Navbar';
-
-const activeBookings = [
-  {
-    id: 1,
-    service: 'Nursing Care',
-    caregiver: 'Priya Sharma',
-    date: '2024-06-18',
-    time: '10:00 AM',
-    status: 'In Progress'
-  },
-  {
-    id: 2,
-    service: 'Physiotherapy',
-    caregiver: 'Rahul Singh',
-    date: '2024-06-20',
-    time: '4:00 PM',
-    status: 'Pending'
-  }
-];
+import { getUserBookings } from '../../api/index';
 
 const statusColor = {
   'Pending': { bg: '#FFF3CD', text: '#856404' },
   'Accepted': { bg: '#D1ECF1', text: '#0C5460' },
   'In Progress': { bg: '#FFF0F3', text: '#F4617F' },
-  'Completed': { bg: '#D4EDDA', text: '#155724' }
+  'Completed': { bg: '#D4EDDA', text: '#155724' },
+  'Rejected': { bg: '#F8D7DA', text: '#721C24' }
 };
 
 const TrackService = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await getUserBookings();
+        setBookings(res.data.bookings);
+      } catch (err) {
+        setError('Failed to load bookings.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{backgroundColor: '#FFF8F8'}}>
+        <Navbar />
+        <div className="flex justify-center items-center py-20">
+          <p className="text-gray-400">Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen" style={{backgroundColor: '#FFF8F8'}}>
       <Navbar />
@@ -36,23 +48,35 @@ const TrackService = () => {
         <h2 className="text-2xl font-bold text-gray-800 mb-1">Track Service Status</h2>
         <p className="text-gray-400 text-sm mb-8">View the status of your active bookings</p>
 
+        {error && (
+          <p className="text-red-500 text-center mb-6">{error}</p>
+        )}
+
+        {bookings.length === 0 && (
+          <p className="text-gray-400 text-center">No bookings found.</p>
+        )}
+
         <div className="flex flex-col gap-4">
-          {activeBookings.map((booking) => (
+          {bookings.map((booking) => (
             <div
-              key={booking.id}
+              key={booking._id}
               className="bg-white rounded-xl border p-6"
               style={{borderColor: '#FDEEF1'}}
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">{booking.service}</h3>
-                  <p className="text-sm text-gray-400">Caregiver: {booking.caregiver}</p>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {booking.service.name}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Caregiver: {booking.caregiver.user?.name || 'Assigned'}
+                  </p>
                 </div>
                 <span
                   className="text-xs font-medium px-3 py-1 rounded-full"
                   style={{
-                    backgroundColor: statusColor[booking.status].bg,
-                    color: statusColor[booking.status].text
+                    backgroundColor: statusColor[booking.status]?.bg,
+                    color: statusColor[booking.status]?.text
                   }}
                 >
                   {booking.status}
@@ -62,6 +86,7 @@ const TrackService = () => {
               <div className="flex gap-4 text-sm text-gray-500">
                 <p>📅 {booking.date}</p>
                 <p>🕐 {booking.time}</p>
+                <p>⏱ {booking.bookingType}</p>
               </div>
 
               {/* progress steps */}
