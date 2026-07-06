@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../../components/common/Navbar';
+import { updateAvailability } from '../../api/index';
 
 const ManageAvailability = () => {
   const [availability, setAvailability] = useState({
@@ -11,11 +12,15 @@ const ManageAvailability = () => {
     saturday: false,
     sunday: false
   });
-
   const [serviceArea, setServiceArea] = useState('');
-  const [areas, setAreas] = useState(['Lucknow, UP']);
+  const [areas, setAreas] = useState([]);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
   const handleDayToggle = (day) => {
     setAvailability({ ...availability, [day]: !availability[day] });
@@ -32,12 +37,27 @@ const ManageAvailability = () => {
     setAreas(areas.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ availability, areas, startTime, endTime });
-  };
+    setError('');
+    setSuccess('');
+    setLoading(true);
 
-  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    try {
+      const availableDays = days.filter(day => availability[day]);
+      await updateAvailability({
+        availableDays,
+        startTime,
+        endTime,
+        serviceAreas: areas
+      });
+      setSuccess('Availability saved successfully!');
+    } catch (err) {
+      setError('Failed to save availability.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen" style={{backgroundColor: '#FFF8F8'}}>
@@ -47,9 +67,11 @@ const ManageAvailability = () => {
         <h2 className="text-2xl font-bold text-gray-800 mb-1">Manage Availability</h2>
         <p className="text-gray-400 text-sm mb-8">Set your available days, time and service areas</p>
 
+        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+        {success && <p className="text-green-500 text-sm text-center mb-4">{success}</p>}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-          {/* available days */}
           <div className="bg-white rounded-xl border p-6" style={{borderColor: '#FDEEF1'}}>
             <h3 className="font-semibold text-gray-700 mb-4">Available Days</h3>
             <div className="flex flex-wrap gap-3">
@@ -70,7 +92,6 @@ const ManageAvailability = () => {
             </div>
           </div>
 
-          {/* available time */}
           <div className="bg-white rounded-xl border p-6" style={{borderColor: '#FDEEF1'}}>
             <h3 className="font-semibold text-gray-700 mb-4">Available Time</h3>
             <div className="flex gap-4">
@@ -80,7 +101,6 @@ const ManageAvailability = () => {
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  required
                   className="w-full border rounded-lg px-4 py-2 text-gray-700 focus:outline-none"
                   style={{borderColor: '#FDEEF1'}}
                 />
@@ -91,7 +111,6 @@ const ManageAvailability = () => {
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  required
                   className="w-full border rounded-lg px-4 py-2 text-gray-700 focus:outline-none"
                   style={{borderColor: '#FDEEF1'}}
                 />
@@ -99,10 +118,8 @@ const ManageAvailability = () => {
             </div>
           </div>
 
-          {/* service areas */}
           <div className="bg-white rounded-xl border p-6" style={{borderColor: '#FDEEF1'}}>
             <h3 className="font-semibold text-gray-700 mb-4">Service Areas</h3>
-
             <div className="flex gap-3 mb-4">
               <input
                 type="text"
@@ -121,7 +138,6 @@ const ManageAvailability = () => {
                 Add
               </button>
             </div>
-
             <div className="flex flex-wrap gap-2">
               {areas.map((area, index) => (
                 <div
@@ -133,7 +149,7 @@ const ManageAvailability = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveArea(index)}
-                    className="font-bold hover:opacity-70"
+                    className="font-bold"
                   >
                     ×
                   </button>
@@ -144,10 +160,11 @@ const ManageAvailability = () => {
 
           <button
             type="submit"
+            disabled={loading}
             className="text-white font-semibold py-3 rounded-lg"
-            style={{backgroundColor: '#F4617F'}}
+            style={{backgroundColor: '#F4617F', opacity: loading ? 0.7 : 1}}
           >
-            Save Availability
+            {loading ? 'Saving...' : 'Save Availability'}
           </button>
 
         </form>
