@@ -1,40 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/common/Navbar';
-
-const usersData = [
-  {
-    id: 1,
-    name: 'Ramesh Kumar',
-    email: 'ramesh@gmail.com',
-    phone: '9876543210',
-    role: 'user',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Priya Sharma',
-    email: 'priya@gmail.com',
-    phone: '9876543211',
-    role: 'caregiver',
-    status: 'Active'
-  },
-  {
-    id: 3,
-    name: 'Sunita Gupta',
-    email: 'sunita@gmail.com',
-    phone: '9876543212',
-    role: 'user',
-    status: 'Active'
-  },
-  {
-    id: 4,
-    name: 'Rahul Singh',
-    email: 'rahul@gmail.com',
-    phone: '9876543213',
-    role: 'caregiver',
-    status: 'Active'
-  }
-];
+import { getAllUsers, updateUserStatus } from '../../api/index';
 
 const serviceCategories = [
   'Nursing Care',
@@ -44,18 +10,39 @@ const serviceCategories = [
 ];
 
 const ManageUsers = () => {
-  const [users, setUsers] = useState(usersData);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filterRole, setFilterRole] = useState('all');
 
-  const handleDeactivate = (id) => {
-    setUsers(users.map(u =>
-      u.id === id ? { ...u, status: u.status === 'Active' ? 'Inactive' : 'Active' } : u
-    ));
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await getAllUsers();
+        setUsers(res.data.users);
+      } catch (err) {
+        setError('Failed to load users.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const filtered = filterRole === 'all'
     ? users
     : users.filter(u => u.role === filterRole);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{backgroundColor: '#FFF8F8'}}>
+        <Navbar />
+        <div className="flex justify-center items-center py-20">
+          <p className="text-gray-400">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{backgroundColor: '#FFF8F8'}}>
@@ -63,7 +50,11 @@ const ManageUsers = () => {
 
       <div className="max-w-5xl mx-auto py-16 px-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-1">Manage Users & Service Categories</h2>
-        <p className="text-gray-400 text-sm mb-8">View and manage all registered users and service types</p>
+        <p className="text-gray-400 text-sm mb-8">View and manage all registered users</p>
+
+        {error && (
+          <p className="text-red-500 text-center mb-6">{error}</p>
+        )}
 
         {/* service categories */}
         <div className="bg-white rounded-xl border p-6 mb-6" style={{borderColor: '#FDEEF1'}}>
@@ -81,12 +72,12 @@ const ManageUsers = () => {
           </div>
         </div>
 
-        {/* users table */}
+        {/* users */}
         <div className="bg-white rounded-xl border p-6" style={{borderColor: '#FDEEF1'}}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-gray-700">All Users</h3>
             <div className="flex gap-3">
-              {['all', 'user', 'caregiver'].map((role) => (
+              {['all', 'user', 'caregiver', 'admin'].map((role) => (
                 <button
                   key={role}
                   onClick={() => setFilterRole(role)}
@@ -105,7 +96,7 @@ const ManageUsers = () => {
           <div className="flex flex-col gap-3">
             {filtered.map((u) => (
               <div
-                key={u.id}
+                key={u._id}
                 className="flex justify-between items-center p-4 rounded-lg border"
                 style={{borderColor: '#FDEEF1'}}
               >
@@ -118,24 +109,6 @@ const ManageUsers = () => {
                   >
                     {u.role}
                   </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className="text-xs font-medium px-3 py-1 rounded-full"
-                    style={u.status === 'Active'
-                      ? {backgroundColor: '#D4EDDA', color: '#155724'}
-                      : {backgroundColor: '#F8D7DA', color: '#721C24'}
-                    }
-                  >
-                    {u.status}
-                  </span>
-                  <button
-                    onClick={() => handleDeactivate(u.id)}
-                    className="text-sm px-4 py-1 rounded-lg border"
-                    style={{borderColor: '#FDEEF1', color: '#888'}}
-                  >
-                    {u.status === 'Active' ? 'Deactivate' : 'Activate'}
-                  </button>
                 </div>
               </div>
             ))}
