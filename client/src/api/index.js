@@ -31,6 +31,7 @@ export const getCaregivers = () => API.get('/caregivers');
 export const createBooking = (data) => API.post('/bookings', data);
 export const getUserBookings = () => API.get('/bookings/user');
 export const getCaregiverBookings = () => API.get('/bookings/caregiver');
+export const updateAvailability = (data) => API.put('/caregivers/availability', data);
 export const updateBookingStatus = (id, data) => API.put(`/bookings/${id}/status`, data);
 export const addCareNote = (id, data) => API.post(`/bookings/${id}/note`, data);
 export const getCareNotes = (id) => API.get(`/bookings/${id}/notes`);

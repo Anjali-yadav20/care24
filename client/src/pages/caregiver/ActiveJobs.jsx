@@ -42,14 +42,19 @@ const ActiveJobs = () => {
   };
 
   const handleNoteSave = async (id) => {
-    try {
-      await addCareNote(id, { note: noteInput[id] });
-      setNoteInput({ ...noteInput, [id]: '' });
-      alert('Care note saved!');
-    } catch (err) {
-      setError('Failed to save note.');
+  try {
+    if (!noteInput[id] || noteInput[id].trim() === '') {
+      alert('Please enter a note first');
+      return;
     }
-  };
+    await addCareNote(id, { note: noteInput[id] });
+    setNoteInput({ ...noteInput, [id]: '' });
+    alert('Care note saved!');
+  } catch (err) {
+    setError('Failed to save note.');
+    console.log(err);
+  }
+};
 
   if (loading) {
     return (

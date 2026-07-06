@@ -39,7 +39,15 @@ const getUserBookings = async (req, res) => {
 // caregiver gets their incoming requests
 const getCaregiverBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ caregiver: req.user.id })
+    // first find the caregiver document for this logged in user
+    const Caregiver = require('../models/Caregiver');
+    const caregiver = await Caregiver.findOne({ user: req.user.id });
+
+    if (!caregiver) {
+      return res.status(404).json({ message: 'Caregiver profile not found' });
+    }
+
+    const bookings = await Booking.find({ caregiver: caregiver._id })
       .populate('user', 'name phone')
       .populate('service', 'name price');
 
@@ -69,15 +77,18 @@ const updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 // caregiver adds a care note to a booking
 const addCareNote = async (req, res) => {
   try {
     const { note } = req.body;
 
+    if (!note || note.trim() === '') {
+      return res.status(400).json({ message: 'Note cannot be empty' });
+    }
+
     const careNote = await CareNote.create({
       booking: req.params.id,
-      note
+      note: note.trim()
     });
 
     res.status(201).json({ message: 'Care note added', careNote });
