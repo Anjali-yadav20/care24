@@ -1,24 +1,24 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home.jsx';
-import Login from './pages/Login.jsx';
-import Register from './pages/Register.jsx';
-import PatientProfile from './pages/user/PatientProfile.jsx';
-import Services from './pages/user/Services.jsx';
-import Caregivers from './pages/user/Caregivers.jsx';
-import BookService from './pages/user/BookService.jsx';
-import TrackService from './pages/user/TrackService.jsx';
-import ServiceHistory from './pages/user/ServiceHistory.jsx';
-import ManageAvailability from './pages/caregiver/ManageAvailability.jsx';
-import ServiceRequests from './pages/caregiver/ServiceRequests.jsx';
-import ActiveJobs from './pages/caregiver/ActiveJobs.jsx';
-import EarningsHistory from './pages/caregiver/EarningsHistory.jsx';
-import VerifyCaregivers from './pages/admin/VerifyCaregivers.jsx';
-import ManageUsers from './pages/admin/ManageUsers.jsx';
-import MonitorQuality from './pages/admin/MonitorQuality.jsx';
-import Disputes from './pages/admin/Disputes.jsx';
-import AdminDashboard from './pages/admin/AdminDashboard.jsx';
-import ProtectedRoute from './components/common/ProtectedRoute.jsx';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import PatientProfile from './pages/user/PatientProfile';
+import Services from './pages/user/Services';
+import Caregivers from './pages/user/Caregivers';
+import BookService from './pages/user/BookService';
+import TrackService from './pages/user/TrackService';
+import ServiceHistory from './pages/user/ServiceHistory';
+import ManageAvailability from './pages/caregiver/ManageAvailability';
+import ServiceRequests from './pages/caregiver/ServiceRequests';
+import ActiveJobs from './pages/caregiver/ActiveJobs';
+import EarningsHistory from './pages/caregiver/EarningsHistory';
+import VerifyCaregivers from './pages/admin/VerifyCaregivers';
+import ManageUsers from './pages/admin/ManageUsers';
+import MonitorQuality from './pages/admin/MonitorQuality';
+import Disputes from './pages/admin/Disputes';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
   return (
