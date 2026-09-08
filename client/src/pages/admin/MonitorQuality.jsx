@@ -21,4 +21,4 @@ const MonitorQuality = () => {
   );
 };
 
-export default MonitorQuality;
+export default MonitorQuality; ,
